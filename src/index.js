@@ -35,6 +35,7 @@ server.express.use(async (req, res, next) => {
 });
 
 //start it
+//cors accepts array of endpoints
 server.start(
   {
     cors: {
