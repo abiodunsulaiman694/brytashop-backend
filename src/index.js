@@ -40,7 +40,7 @@ server.start(
   {
     cors: {
       credentials: true,
-      origin: "http://localhost:7777"
+      origin: process.env.FRONTEND_URL
     }
   },
   deets => {
