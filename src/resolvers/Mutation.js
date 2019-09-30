@@ -493,7 +493,7 @@ const Mutations = {
           }
         });
         //Return the order to the client
-        console.log(`About to return order- ${order}`);
+        console.log({order});
         return order;
       } else {
         console.log(`Exiting Paystack callback`);
