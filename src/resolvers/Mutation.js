@@ -383,12 +383,14 @@ const Mutations = {
   },
   async createOrderPaystack(parent, args, ctx, info) {
     //query current user and ensure the're signed in
+    console.log("I'm in");
     console.log("Im in paystack order");
     const { userId } = ctx.request;
     if (!userId) {
       throw new Error("You must be signed in to complete this order");
     }
     //const user = await ctx.request.user
+    console.log("Passed validation");
     const user = await ctx.db.query.user(
       {
         where: {
@@ -418,7 +420,9 @@ const Mutations = {
       (tally, cartItem) => tally + cartItem.item.price * cartItem.quantity,
       0
     );
+    console.log("About to start payment");
     await paystack.transaction.verify(args.reference, function(error, body) {
+      console.log({ body, error });
       const { data } = body;
       if (error) {
         throw new Error(`Paystack error: ${error}`);
@@ -432,6 +436,7 @@ const Mutations = {
         );
       }
     });
+    console.log(`Payment done- ${data}`);
     //Convert the CartItems to OrderItems
     const orderItems = user.cart.map(cartItem => {
       const orderItem = {
@@ -451,6 +456,7 @@ const Mutations = {
       delete orderItem.id;
       return orderItem;
     });
+    console.log(`About to create order-- Order Iterms done- ${orderItems}`);
     //Create the order
     const order = await ctx.db.mutation.createOrder({
       data: {
@@ -471,6 +477,7 @@ const Mutations = {
         }
       }
     });
+    console.log(`About to create order-- Order Iterms done- ${orderItems}`);
     //Clear the user's carts and delete cart items
     const cartItemIds = user.cart.map(cartItem => cartItem.id);
     await ctx.db.mutation.deleteManyCartItems({
@@ -479,6 +486,7 @@ const Mutations = {
       }
     });
     //Return the order to the client
+    console.log(`About to return order- ${order}`);
     return order;
   }
 };
