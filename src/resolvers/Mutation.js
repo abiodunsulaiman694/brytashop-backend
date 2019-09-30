@@ -462,7 +462,8 @@ const Mutations = {
       delete orderItem.id;
       return orderItem;
     });
-    console.log(`About to create order-- Order Iterms done- ${orderItems}`);
+    console.log(`About to create order-- Order Iterms done`);
+    console.log(orderItems);
     //Create the order
     const order = await ctx.db.mutation.createOrder({
       data: {
@@ -492,6 +493,8 @@ const Mutations = {
         id_in: cartItemIds
       }
     });
+    console.log(`Deleted cart items`);
+    console.log(cartItemIds);
     //Return the order to the client
     console.log(`About to return order`);
     console.log(order);
