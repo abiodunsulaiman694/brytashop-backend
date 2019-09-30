@@ -442,7 +442,7 @@ const Mutations = {
       }
       console.log(`Exiting Paystack callback`);
     });
-    console.log(`Payment done- ${data}`);
+    console.log(`Payment done`);
     //Convert the CartItems to OrderItems
     const orderItems = user.cart.map(cartItem => {
       const orderItem = {
