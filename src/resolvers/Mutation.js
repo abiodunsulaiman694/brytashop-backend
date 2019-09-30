@@ -425,16 +425,20 @@ const Mutations = {
       console.log({ body, error });
       const { data } = body;
       if (error) {
+        console.log(`Paystack error- ${error}`);
         throw new Error(`Paystack error: ${error}`);
       }
       if (data.status !== "success") {
+        console.log(`Paystack data status- ${data.status}`);
         throw new Error(`Paystack error: ${data.status}`);
       }
       if (data.amount !== amount) {
+        console.log(`Paystack amount- ${data.amount} --- ${amount}`);
         throw new Error(
           `Invalid amount. Received: '${data.currency}${data.amount}'. Expected '${data.currency}${amount}'`
         );
       }
+      console.log(`Exiting Paystack callback`);
     });
     console.log(`Payment done- ${data}`);
     //Convert the CartItems to OrderItems
