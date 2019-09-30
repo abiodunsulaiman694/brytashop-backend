@@ -483,7 +483,8 @@ const Mutations = {
         }
       }
     });
-    console.log(`About to create order-- Order Iterms done- ${orderItems}`);
+    console.log(`Order created`);
+    console.log(order);
     //Clear the user's carts and delete cart items
     const cartItemIds = user.cart.map(cartItem => cartItem.id);
     await ctx.db.mutation.deleteManyCartItems({
@@ -492,7 +493,8 @@ const Mutations = {
       }
     });
     //Return the order to the client
-    console.log(`About to return order- ${order}`);
+    console.log(`About to return order`);
+    console.log(order);
     return order;
   }
 };
