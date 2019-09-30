@@ -83,7 +83,7 @@ const Mutations = {
       data: {
         ...data,
         password,
-        permissions: { set: ["USER", "ADMIN"] }
+        permissions: { set: ["USER"] }
       },
       info
     });
