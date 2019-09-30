@@ -421,7 +421,10 @@ const Mutations = {
       0
     );
     console.log("About to start payment");
-    await paystack.transaction.verify(args.reference, function(error, body) {
+    await paystack.transaction.verify(args.reference, async function(
+      error,
+      body
+    ) {
       console.log({ body, error });
       const { data } = body;
       if (error) {
@@ -438,60 +441,64 @@ const Mutations = {
           `Invalid amount. Received: '${data.currency}${data.amount}'. Expected '${data.currency}${amount}'`
         );
       }
-      console.log(`Exiting Paystack callback`);
-    });
-    console.log(`Payment done- ${data}`);
-    //Convert the CartItems to OrderItems
-    const orderItems = user.cart.map(cartItem => {
-      const orderItem = {
-        ...cartItem.item,
-        quantity: cartItem.quantity,
-        user: {
-          connect: {
-            id: userId
+      if (data.status === "success") {
+        console.log(`it's a success data$ - {data.status}`);
+        console.log(`Payment done- ${data}`);
+        //Convert the CartItems to OrderItems
+        const orderItems = user.cart.map(cartItem => {
+          const orderItem = {
+            ...cartItem.item,
+            quantity: cartItem.quantity,
+            user: {
+              connect: {
+                id: userId
+              }
+            },
+            item: {
+              connect: {
+                id: cartItem.item.id
+              }
+            }
+          };
+          delete orderItem.id;
+          return orderItem;
+        });
+        console.log(`About to create order-- Order Iterms done- ${orderItems}`);
+        //Create the order
+        const order = await ctx.db.mutation.createOrder({
+          data: {
+            total: amount,
+            charge: args.reference,
+            reference: args.reference,
+            trans: args.trans,
+            transaction: args.transaction,
+            trxref: args.trxref,
+            paymentPlatform: "Paystack",
+            items: {
+              create: orderItems
+            },
+            user: {
+              connect: {
+                id: userId
+              }
+            }
           }
-        },
-        item: {
-          connect: {
-            id: cartItem.item.id
+        });
+        console.log(`About to create order-- Order Iterms done- ${orderItems}`);
+        //Clear the user's carts and delete cart items
+        const cartItemIds = user.cart.map(cartItem => cartItem.id);
+        await ctx.db.mutation.deleteManyCartItems({
+          where: {
+            id_in: cartItemIds
           }
-        }
-      };
-      delete orderItem.id;
-      return orderItem;
-    });
-    console.log(`About to create order-- Order Iterms done- ${orderItems}`);
-    //Create the order
-    const order = await ctx.db.mutation.createOrder({
-      data: {
-        total: amount,
-        charge: args.reference,
-        reference: args.reference,
-        trans: args.trans,
-        transaction: args.transaction,
-        trxref: args.trxref,
-        paymentPlatform: "Paystack",
-        items: {
-          create: orderItems
-        },
-        user: {
-          connect: {
-            id: userId
-          }
-        }
+        });
+        //Return the order to the client
+        console.log(`About to return order- ${order}`);
+        return order;
+      } else {
+        console.log(`Exiting Paystack callback`);
       }
     });
-    console.log(`About to create order-- Order Iterms done- ${orderItems}`);
-    //Clear the user's carts and delete cart items
-    const cartItemIds = user.cart.map(cartItem => cartItem.id);
-    await ctx.db.mutation.deleteManyCartItems({
-      where: {
-        id_in: cartItemIds
-      }
-    });
-    //Return the order to the client
-    console.log(`About to return order- ${order}`);
-    return order;
   }
 };
 
